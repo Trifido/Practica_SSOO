@@ -1,0 +1,12 @@
+#include <stdio.h>
+#include <signal.h>
+
+int main(){
+	sigset_t new_mask;
+
+	sigemptyset(&new_mask);
+
+	sigfillset(&new_mask); // -> Introducimos todas las señales bloqueadoras en un conjunto
+	sigdelset(&new_mask, SIGUSR1);// -> Borramos la señal del conjunto
+	sigsuspend(&new_mask); // ->Bloquea el proceso hasta que se llame a la señal de desbloqueo
+}

@@ -1,0 +1,55 @@
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<fcntl.h>
+#include<stdlib.h>
+#include<stdio.h>
+#include<errno.h>
+#include<unistd.h>
+
+int main(int argc, char *argv[])
+{
+	int fd1, fd2;
+	char buf1[80];
+	char buf2[]={"\nBloque "};
+
+	if(argc==1){
+		fd1=STDIN_FILENO;
+	}
+	else if(argc==2){
+		if( (fd1=open(argv[1],O_RDONLY,S_IRUSR|S_IWUSR))<0){
+			printf("\nError %d en open",errno);
+			perror("\nError en open");
+			exit(-1);
+		}
+	}
+	else{
+		printf("\nError en el numero de argumentos.");
+	}
+
+	fd2=open("salida",O_CREAT|O_WRONLY|O_APPEND,S_IRUSR|S_IWUSR);
+
+	int i=1,j=0;
+	char numero[2];
+	int fin=0;
+	while(fin==0){
+		for(j; fin==0;j++)
+			if(buf1[i*j]==EOF){	//Identificar final??
+				fin=1;
+				printf("\nError llegue al final.");
+			}
+		j+=10;
+		read(fd1,buf1,10);		  //Leo del argv1 y lo paso al array
+		write(fd2,buf2,8);		  //Escribimos "Bloque " en el archivo
+		sprintf(numero, "%d",i ); //Convertimos numero en char
+		numero[1]='\n';
+		write(fd2,numero,2);	  //Escribo el numero
+		write(fd2,buf1,10);		  //Escribo los 80 bytes
+		i++;
+	}
+		//Escribir al inicio del archivo??
+	lseek(fd2,0,SEEK_SET);
+	write(fd2,"El número de bloques es\n",24);
+
+	close(fd1);
+	close(fd2);
+}
